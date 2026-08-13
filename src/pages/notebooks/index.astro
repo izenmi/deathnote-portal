@@ -1,0 +1,173 @@
+---
+import Base from '../../layouts/Base.astro';
+import nb from '../../data/notebooks.json';
+import timeline from '../../data/timeline.json';
+
+const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
+const maxOrd = 13;
+---
+
+<Base title="ノート所有権の変遷" description="人間界に存在したデスノートが、いつ誰の手にあったのかを帯で可視化。読了位置より先は伏せられます。">
+  <h1>📕 ノート所有権の変遷</h1>
+  <p class="muted">
+    デスノートは一冊だけではありません。人間界に持ち込まれたノートが<strong>いつ・誰の手にあったのか</strong>を、
+    巻を横軸にして並べたものです。読了位置(右上📖)より先は伏せられます。
+  </p>
+
+  <div class="card chart-card">
+    <svg id="nb-chart" viewBox="0 0 780 300" role="img" aria-label="ノート所有権の変遷図"></svg>
+  </div>
+
+  <p class="muted small-note">
+    ※ 作中で所在が明示されない期間もあるため、大まかな流れとして整理しています。所在の解釈は管理人によるものです。
+  </p>
+
+  <section>
+    <h2 class="section-title">ノートごとの来歴</h2>
+    <div data-sp-count>
+      <p class="sp-note"></p>
+      <ul class="books">
+        {nb.books.map((b) => (
+          <li class="card book-item" data-sp={b.sp > 1 ? b.sp : undefined} data-sp-hide={b.sp > 1 ? '' : undefined}>
+            <div class="book-head">
+              <strong>{b.label}</strong>
+              <span class="vol-badge">{spLabel(b.sp)}から</span>
+            </div>
+            <p class="muted">{b.origin}</p>
+            <ul class="spans">
+              {nb.spans.filter((s) => s.book === b.id).map((s) => (
+                <li data-sp={s.from > 1 ? s.from : undefined} data-sp-hide={s.from > 1 ? '' : undefined}>
+                  <span class="side-chip" data-side={s.side}>{s.owner}</span>
+                  <span class="span-range muted">{spLabel(s.from)}〜</span>
+                  <span>{s.note}</span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">ノートをめぐる出来事</h2>
+    <div data-sp-count>
+      <p class="sp-note"></p>
+      <ul class="events">
+        {nb.events.map((e) => (
+          <li class="card event-item" data-sp={e.ord > 1 ? e.ord : undefined} data-sp-hide={e.ord > 1 ? '' : undefined}>
+            <span class="note-vol">{spLabel(e.ord)}</span>
+            <span>{e.text}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ books: nb.books, spans: nb.spans, maxOrd }}>
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('nb-chart');
+    const SIDE = {
+      kira: 'var(--side-kira)', police: 'var(--side-police)', spk: 'var(--side-spk)',
+      mafia: 'var(--side-mafia)', l: 'var(--side-l)', other: 'var(--side-other)',
+    };
+    const W = 780, L = 24, R = 24, T = 42, ROW = 56;
+
+    const draw = () => {
+      const progress = window.KIRA ? window.KIRA.progress : 0;
+      // まだ存在が明かされていないノートは行ごと出さない(冊数自体がネタバレになるため)
+      const shown = books.filter((b) => b.sp <= Math.max(progress, 1));
+      const H = T + Math.max(shown.length, 1) * ROW + 34;
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.textContent = '';
+      const el = (n, attrs, text) => {
+        const e = document.createElementNS(NS, n);
+        for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+        if (text !== undefined) e.textContent = text;
+        svg.appendChild(e);
+        return e;
+      };
+      const x = (ord) => L + ((W - L - R) * (ord - 1)) / (maxOrd - 1);
+
+      // 巻の目盛り
+      for (let o = 1; o <= 12; o++) {
+        el('line', { x1: x(o), y1: T - 12, x2: x(o), y2: H - 28, stroke: 'var(--line)', 'stroke-width': 1 });
+        el('text', {
+          x: x(o), y: T - 18, 'text-anchor': 'middle', 'font-size': 10, fill: 'var(--ink-2)',
+        }, o);
+      }
+
+      shown.forEach((b, i) => {
+        const y = T + i * ROW;
+        el('text', { x: L, y: y + 12, 'font-size': 11, 'font-weight': 700, fill: 'var(--ink)' }, b.label);
+        // 帯の下地
+        el('rect', {
+          x: L, y: y + 20, width: W - L - R, height: 22, rx: 5,
+          fill: 'var(--surface-2)', stroke: 'var(--line)',
+        });
+        spans.filter((s) => s.book === b.id).forEach((s) => {
+          if (s.from > progress) return; // 未読の区間は描かない
+          const to = Math.min(s.to, Math.max(progress + 1, s.from + 0.4));
+          const x1 = x(s.from), x2 = x(Math.min(to, maxOrd));
+          if (x2 <= x1) return;
+          const rect = el('rect', {
+            x: x1, y: y + 20, width: x2 - x1, height: 22, rx: 5,
+            fill: SIDE[s.side] || SIDE.other, opacity: 0.85,
+          });
+          const title = document.createElementNS(NS, 'title');
+          title.textContent = `${s.owner}: ${s.note}`;
+          rect.appendChild(title);
+          if (x2 - x1 > 58) {
+            el('text', {
+              x: (x1 + x2) / 2, y: y + 35, 'text-anchor': 'middle',
+              'font-size': 10, 'font-weight': 700, fill: '#fff',
+            }, s.owner);
+          }
+        });
+      });
+
+      // 未読領域のマスク
+      if (progress < maxOrd) {
+        const mx = x(Math.max(progress, 1));
+        el('rect', {
+          x: mx, y: T - 12, width: W - R - mx, height: H - T - 16, rx: 6,
+          fill: 'var(--mask-bg)', opacity: 0.55,
+        });
+        el('text', {
+          x: (mx + W - R) / 2, y: T + (Math.max(shown.length, 1) * ROW) / 2, 'text-anchor': 'middle',
+          'font-size': 15, 'font-weight': 800, fill: 'var(--ink)',
+        }, '???');
+        el('text', {
+          x: (mx + W - R) / 2, y: T + (Math.max(shown.length, 1) * ROW) / 2 + 20, 'text-anchor': 'middle',
+          'font-size': 10, fill: 'var(--ink)',
+        }, 'この先は読了位置を進めると表示されます');
+      }
+    };
+
+    document.addEventListener('kira:progress', draw);
+    window.addEventListener('DOMContentLoaded', draw);
+  </script>
+
+  <style>
+    .chart-card { padding: 16px; margin-top: 14px; overflow-x: auto; }
+    .chart-card svg { width: 100%; min-width: 640px; height: auto; }
+    .small-note { font-size: 0.78rem; }
+    .books { list-style: none; padding: 0; display: grid; gap: 12px; }
+    .book-item { padding: 16px 18px; border-left: 4px solid var(--accent); }
+    .book-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .book-head strong { font-size: 1.02rem; }
+    .vol-badge {
+      background: var(--noir); color: var(--noir-ink);
+      font-size: 0.7rem; font-weight: 700; border-radius: 999px; padding: 3px 9px;
+    }
+    .spans { list-style: none; padding: 0; display: grid; gap: 8px; margin: 10px 0 0; }
+    .spans li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: 0.86rem; }
+    .span-range { font-size: 0.76rem; flex-shrink: 0; }
+    .events { list-style: none; padding: 0; display: grid; gap: 10px; }
+    .event-item { padding: 12px 14px; display: flex; gap: 12px; align-items: baseline; }
+    .note-vol {
+      flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: var(--accent);
+      background: var(--accent-soft); border-radius: 6px; padding: 2px 8px;
+    }
+  </style>
+</Base>

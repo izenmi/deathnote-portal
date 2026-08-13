@@ -1,125 +1,208 @@
 ---
 import Base from '../../layouts/Base.astro';
-import glossary from '../../data/rules.json';
+import rulesData from '../../data/rules.json';
+import cases from '../../data/cases.json';
 import timeline from '../../data/timeline.json';
 
+const base = import.meta.env.BASE_URL;
 const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
+const caseName = (id: string) => cases.find((c) => c.id === id)?.name ?? id;
+const rulesOf = (cat: string) => rulesData.rules.filter((r) => r.category === cat);
 ---
 
-<Base title="用語集・学校システム図解" description="クラスポイント・プライベートポイント・OAAなど、よう実の複雑な学校システムを図解付きで解説。">
-  <h1>📖 用語集・学校システム図解</h1>
+<Base title="ノートのルール" description="デスノートの使用条件を、効果と作中での使われ方から整理。読み進めた分だけルールが判明していきます。">
+  <h1>📓 ノートのルール</h1>
   <p class="muted">
-    高度育成高等学校の複雑なルールを図解付きでまとめました。ネタバレを含む用語は読了位置に応じて隠されます。
+    ノートの使い方は、物語が進むにつれて少しずつ明らかになっていきます。
+    このページは<strong>あなたの読了位置(右上📖)の時点で判明しているルールだけ</strong>を表示します。
+    そして——中には、後になって<strong>そもそも存在しなかったと判明する条文</strong>も混ざっています。
+  </p>
+  <p class="muted small-note">
+    ※ 原作の条文をそのまま引き写したものではなく、効果と作中での使われ方を管理人が要約したものです。正確な条文は原作単行本をご参照ください。
   </p>
 
-  <nav class="card gl-toc">
-    {glossary.map((c) => <a href={`#${c.category}`}>{c.category}</a>)}
-  </nav>
+  {rulesData.categories.map((cat) => (
+    <section>
+      <h2 class="section-title">{cat.label}</h2>
 
-  {glossary.map((c) => (
-    <section id={c.category}>
-      <h2 class="section-title">{c.category}</h2>
-
-      {c.diagram === 'points' && (
-        <div class="card gl-diagram">
-          <svg viewBox="0 0 700 210" role="img" aria-label="ポイントの流れ図">
-            <rect x="20" y="70" width="170" height="70" rx="10" fill="var(--accent)" opacity="0.9" />
-            <text x="105" y="100" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">クラスポイント</text>
-            <text x="105" y="122" text-anchor="middle" font-size="11" fill="#fff">クラスの格を決める</text>
-            <rect x="440" y="70" width="180" height="70" rx="10" fill="var(--noir)" />
-            <text x="530" y="100" text-anchor="middle" font-size="15" font-weight="800" fill="var(--noir-ink)">プライベートポイント</text>
-            <text x="530" y="122" text-anchor="middle" font-size="11" fill="var(--noir-ink)">1pt = 1円で使える</text>
-            <line x1="190" y1="105" x2="432" y2="105" stroke="var(--ink-2)" stroke-width="2.5" marker-end="url(#gl-arrow)" />
-            <text x="310" y="92" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">毎月 CP×100 を支給</text>
-            <rect x="230" y="10" width="170" height="40" rx="8" fill="var(--surface-2)" stroke="var(--line)" />
-            <text x="315" y="35" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">特別試験・生活態度</text>
-            <line x1="270" y1="50" x2="150" y2="66" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#gl-arrow)" />
-            <text x="160" y="52" text-anchor="middle" font-size="11" fill="var(--ink-2)">増減</text>
-            <rect x="230" y="150" width="170" height="40" rx="8" fill="var(--surface-2)" stroke="var(--line)" />
-            <text x="315" y="175" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">生徒間の取引・買収</text>
-            <line x1="440" y1="145" x2="380" y2="158" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#gl-arrow)" />
+      {cat.diagram === 'flow' && (
+        <div class="card diagram">
+          <svg viewBox="0 0 720 190" role="img" aria-label="ノート使用の流れ">
             <defs>
-              <marker id="gl-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L8,4 L0,8 Z" fill="var(--ink-2)" />
+              <marker id="dn-ar1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+                <path d="M0 0 L9 4.5 L0 9 Z" fill="var(--ink-2)" />
               </marker>
             </defs>
+            <rect x="10" y="55" width="150" height="70" rx="10" fill="var(--surface-2)" stroke="var(--line)" />
+            <text x="85" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">顔を思い浮かべる</text>
+            <text x="85" y="105" text-anchor="middle" font-size="11" fill="var(--ink-2)">知らない顔には効かない</text>
+
+            <line x1="165" y1="90" x2="205" y2="90" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+
+            <rect x="210" y="55" width="150" height="70" rx="10" fill="var(--noir)" stroke="var(--noir)" />
+            <text x="285" y="85" text-anchor="middle" font-size="14" font-weight="700" fill="var(--noir-ink)">名前を書く</text>
+            <text x="285" y="105" text-anchor="middle" font-size="11" fill="var(--noir-ink)" opacity="0.75">切れ端でも効力は同じ</text>
+
+            <line x1="365" y1="90" x2="405" y2="70" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+            <line x1="365" y1="90" x2="405" y2="115" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+
+            <rect x="415" y="18" width="290" height="58" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" />
+            <text x="560" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">死因を書かない場合</text>
+            <text x="560" y="62" text-anchor="middle" font-size="12" fill="var(--ink)">40秒後に心臓麻痺</text>
+
+            <rect x="415" y="105" width="290" height="70" rx="10" fill="var(--surface-2)" stroke="var(--line)" />
+            <text x="560" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">死因を書く場合</text>
+            <text x="560" y="148" text-anchor="middle" font-size="12" fill="var(--ink-2)">死因と、そこに至るまでの</text>
+            <text x="560" y="164" text-anchor="middle" font-size="12" fill="var(--ink-2)">行動まで指定できる</text>
           </svg>
         </div>
       )}
 
-      {c.diagram === 'ladder' && (
-        <div class="card gl-diagram">
-          <svg viewBox="0 0 700 230" role="img" aria-label="クラス昇降格の図">
-            {['D', 'C', 'B', 'A'].map((cls, i) => (
-              <>
-                <rect x={40 + i * 165} y={150 - i * 40} width="130" height={60 + i * 40} rx="8"
-                  fill={`var(--class-${cls.toLowerCase()})`} opacity="0.85" />
-                <text x={105 + i * 165} y={185 - i * 40} text-anchor="middle" font-size="26" font-weight="800" fill="#fff">{cls}</text>
-              </>
-            ))}
-            <text x="105" y="140" text-anchor="middle" font-size="11.5" fill="var(--ink-2)">落ちこぼれ?</text>
-            <text x="600" y="100" text-anchor="middle" font-size="11.5" fill="var(--ink-2)">卒業時の進路保証</text>
-            <path d="M 130 105 Q 350 20 580 68" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#gl-arrow2)" />
-            <text x="350" y="38" text-anchor="middle" font-size="13" font-weight="800" fill="var(--accent)">CPで上位を逆転すれば昇格できる</text>
-            <defs>
-              <marker id="gl-arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L8,4 L0,8 Z" fill="var(--accent)" />
-              </marker>
-            </defs>
+      {cat.diagram === 'eyes' && (
+        <div class="card diagram">
+          <svg viewBox="0 0 720 180" role="img" aria-label="死神の目の取引">
+            <text x="20" y="30" font-size="13" font-weight="700" fill="var(--ink)">取引前の残り寿命</text>
+            <rect x="20" y="42" width="400" height="26" rx="6" fill="var(--surface-2)" stroke="var(--line)" />
+            <rect x="20" y="42" width="400" height="26" rx="6" fill="#5b8f7a" opacity="0.55" />
+
+            <text x="20" y="105" font-size="13" font-weight="700" fill="var(--ink)">取引後</text>
+            <rect x="20" y="117" width="400" height="26" rx="6" fill="var(--surface-2)" stroke="var(--line)" />
+            <rect x="20" y="117" width="200" height="26" rx="6" fill="#5b8f7a" opacity="0.55" />
+            <rect x="220" y="117" width="200" height="26" fill="var(--accent)" opacity="0.28" />
+            <text x="320" y="135" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">死神へ(半分)</text>
+
+            <line x1="440" y1="90" x2="480" y2="90" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+
+            <rect x="490" y="45" width="215" height="90" rx="12" fill="var(--noir)" />
+            <circle cx="560" cy="85" r="17" fill="#e8c93a" />
+            <circle cx="560" cy="85" r="7" fill="#b5321f" />
+            <text x="640" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="var(--noir-ink)">顔を見るだけで</text>
+            <text x="640" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="var(--noir-ink)">名前と寿命が分かる</text>
+          </svg>
+          <p class="muted diagram-note">※ 一度渡した寿命は、所有権を手放しても戻りません。</p>
+        </div>
+      )}
+
+      {cat.diagram === 'ownership' && (
+        <div class="card diagram">
+          <svg viewBox="0 0 720 170" role="img" aria-label="所有権と記憶の関係">
+            <rect x="10" y="55" width="140" height="66" rx="10" fill="var(--noir)" />
+            <text x="80" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="var(--noir-ink)">所有者</text>
+            <text x="80" y="102" text-anchor="middle" font-size="11" fill="var(--noir-ink)" opacity="0.75">記憶あり</text>
+
+            <line x1="155" y1="88" x2="200" y2="88" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+            <text x="177" y="78" text-anchor="middle" font-size="10" fill="var(--ink-2)">放棄</text>
+
+            <rect x="205" y="55" width="150" height="66" rx="10" fill="var(--surface-2)" stroke="var(--line)" stroke-dasharray="6 4" />
+            <text x="280" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">記憶を失う</text>
+            <text x="280" y="102" text-anchor="middle" font-size="11" fill="var(--ink-2)">自分がキラだった事実ごと</text>
+
+            <line x1="360" y1="88" x2="405" y2="88" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+            <text x="382" y="78" text-anchor="middle" font-size="10" fill="var(--ink-2)">再び触れる</text>
+
+            <rect x="410" y="55" width="150" height="66" rx="10" fill="var(--noir)" />
+            <text x="485" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="var(--noir-ink)">記憶が戻る</text>
+            <text x="485" y="102" text-anchor="middle" font-size="11" fill="var(--noir-ink)" opacity="0.75">計画に組み込める</text>
+
+            <rect x="580" y="45" width="130" height="86" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" />
+            <text x="645" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">寿命だけは</text>
+            <text x="645" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">戻らない</text>
+            <text x="645" y="112" text-anchor="middle" font-size="10" fill="var(--ink-2)">目の取引をした場合</text>
           </svg>
         </div>
       )}
 
-      {c.diagram === 'expel' && (
-        <div class="card gl-diagram">
-          <svg viewBox="0 0 700 200" role="img" aria-label="退学までの分岐フロー">
-            <rect x="20" y="75" width="150" height="50" rx="8" fill="var(--accent)" opacity="0.9" />
-            <text x="95" y="105" text-anchor="middle" font-size="13.5" font-weight="800" fill="#fff">赤点・ペナルティ</text>
-            <rect x="270" y="75" width="160" height="50" rx="8" fill="var(--surface-2)" stroke="var(--line)" />
-            <text x="350" y="98" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)">救済手段はある?</text>
-            <text x="350" y="115" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">プロテクトP / 2000万PP</text>
-            <line x1="170" y1="100" x2="262" y2="100" stroke="var(--ink-2)" stroke-width="2.5" marker-end="url(#gl-arrow3)" />
-            <rect x="520" y="20" width="150" height="50" rx="8" fill="#2e8b57" />
-            <text x="595" y="50" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">処分の無効化</text>
-            <rect x="520" y="130" width="150" height="50" rx="8" fill="var(--noir)" />
-            <text x="595" y="160" text-anchor="middle" font-size="14" font-weight="800" fill="var(--noir-ink)">退学</text>
-            <line x1="430" y1="88" x2="512" y2="52" stroke="#2e8b57" stroke-width="2.5" marker-end="url(#gl-arrow3)" />
-            <text x="470" y="55" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2e8b57">あり(超希少)</text>
-            <line x1="430" y1="112" x2="512" y2="148" stroke="var(--ink-2)" stroke-width="2.5" marker-end="url(#gl-arrow3)" />
-            <text x="470" y="150" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--ink-2)">なし</text>
-            <defs>
-              <marker id="gl-arrow3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L8,4 L0,8 Z" fill="var(--ink-2)" />
-              </marker>
-            </defs>
+      {cat.diagram === 'fake' && (
+        <div class="card diagram">
+          <svg viewBox="0 0 720 175" role="img" aria-label="偽ルールの構図">
+            <rect x="20" y="25" width="300" height="125" rx="10" fill="var(--surface-2)" stroke="var(--line)" />
+            <text x="170" y="50" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">ノートに記された条文</text>
+            <rect x="40" y="62" width="260" height="17" rx="4" fill="var(--ink-2)" opacity="0.3" />
+            <rect x="40" y="85" width="260" height="17" rx="4" fill="var(--ink-2)" opacity="0.3" />
+            <rect x="40" y="108" width="260" height="17" rx="4" fill="var(--accent)" opacity="0.55" />
+            <text x="170" y="121" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">後から書き加えられた2条</text>
+
+            <line x1="330" y1="88" x2="375" y2="88" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#dn-ar1)" />
+
+            <rect x="385" y="25" width="150" height="125" rx="10" fill="var(--noir)" />
+            <text x="460" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="var(--noir-ink)">捜査側には</text>
+            <text x="460" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="var(--noir-ink)">見分けられない</text>
+            <text x="460" y="115" text-anchor="middle" font-size="11" fill="var(--noir-ink)" opacity="0.7">同じノートに同じ筆致で</text>
+
+            <line x1="545" y1="88" x2="590" y2="88" stroke="var(--accent)" stroke-width="2" marker-end="url(#dn-ar1)" />
+
+            <rect x="600" y="35" width="105" height="105" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" />
+            <text x="652" y="78" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">最終局面で</text>
+            <text x="652" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accent)">矛盾を突かれる</text>
           </svg>
         </div>
       )}
 
-      <div class="gl-terms" data-sp-count>
+      <div data-sp-count>
         <p class="sp-note"></p>
-        {c.terms.map((t) => (
-          <div class="card gl-term" data-sp={t.sp > 1 ? t.sp : undefined} data-sp-label={spLabel(t.sp)}>
-            <h3>{t.term} <small class="muted">{t.kana}</small></h3>
-            <p>{t.desc}</p>
-          </div>
-        ))}
+        <ul class="rules">
+          {rulesOf(cat.key).map((r: any) => (
+            <li
+              id={r.id}
+              class="card rule-item"
+              data-sp={r.sp > 1 ? r.sp : undefined}
+              data-sp-hide={r.sp > 1 ? '' : undefined}
+            >
+              <div class="rule-head">
+                <strong>{r.title}</strong>
+                <span class="vol-badge">{spLabel(r.sp)}で判明</span>
+              </div>
+              <p class="rule-summary">{r.summary}</p>
+              <p class="rule-detail muted">{r.detail}</p>
+
+              {r.fake && (
+                <div class="fake-box" data-sp={r.falseFrom} data-sp-hide>
+                  <strong>⚠ このルールは偽物でした</strong>
+                  <p>{r.falseText}</p>
+                </div>
+              )}
+
+              {r.usedIn && r.usedIn.length > 0 && (
+                <p class="used-in">
+                  <span class="muted">使われた事件:</span>
+                  {r.usedIn.map((cid: string) => (
+                    <a href={`${base}cases/${cid}/`} class="case-ref">{caseName(cid)}</a>
+                  ))}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   ))}
 
   <style>
-    .gl-toc {
-      display: flex; flex-wrap: wrap; gap: 4px 16px;
-      padding: 10px 16px; margin-top: 12px; font-size: 0.88rem;
+    .small-note { font-size: 0.8rem; }
+    .diagram { padding: 16px; margin-bottom: 14px; overflow-x: auto; }
+    .diagram svg { width: 100%; min-width: 620px; height: auto; }
+    .diagram-note { font-size: 0.78rem; margin: 8px 0 0; }
+    .rules { list-style: none; padding: 0; display: grid; gap: 12px; }
+    .rule-item { padding: 16px 18px; border-left: 4px solid var(--accent); scroll-margin-top: 80px; }
+    .rule-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .rule-head strong { font-size: 1.05rem; }
+    .vol-badge {
+      background: var(--noir); color: var(--noir-ink);
+      font-size: 0.7rem; font-weight: 700; border-radius: 999px; padding: 3px 9px;
     }
-    .gl-toc a { text-decoration: none; font-weight: 700; }
-    .gl-toc a:hover { color: var(--accent); }
-    .gl-diagram { padding: 14px; margin-bottom: 12px; }
-    .gl-diagram svg { width: 100%; height: auto; display: block; }
-    .gl-terms { display: grid; gap: 10px; }
-    .gl-term { padding: 12px 18px; }
-    .gl-term h3 { margin: 0 0 6px; font-size: 1rem; }
-    .gl-term p { margin: 0; font-size: 0.9rem; }
+    .rule-summary { margin: 0 0 6px; font-weight: 600; }
+    .rule-detail { font-size: 0.88rem; margin: 0; }
+    .fake-box {
+      margin-top: 12px; padding: 12px 14px; border-radius: 10px;
+      background: var(--accent-soft); border: 1px solid var(--accent);
+    }
+    .fake-box strong { color: var(--accent); display: block; margin-bottom: 4px; }
+    .fake-box p { margin: 0; font-size: 0.88rem; }
+    .used-in { margin: 10px 0 0; font-size: 0.8rem; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .case-ref {
+      text-decoration: none; background: var(--surface-2); color: var(--ink);
+      border-radius: 6px; padding: 2px 8px;
+    }
+    .case-ref:hover { background: var(--accent); color: var(--accent-ink); }
   </style>
 </Base>
