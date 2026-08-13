@@ -1,43 +1,71 @@
-# Astro Starter Kit: Minimal
+# キラ事件ポータル — 捜査資料室
 
-```sh
-npm create astro@latest -- --template minimal
+『DEATH NOTE』(原作: 大場つぐみ / 作画: 小畑健 / 集英社)の**非公式ファンサイト**です。
+
+公開URL: https://izenmi.github.io/deathnote-portal/
+
+## 特徴
+
+**読了進捗式のネタバレ制御**がサイト全体の中核です。閲覧者がヘッダーの📖ボタンから「原作を何巻まで読んだか」を設定すると、それより先の情報は自動でぼかし・非表示になります。設定は閲覧者の端末の localStorage にのみ保存されます。
+
+とくに **ノートのルール集** では、読み進めた分だけルールが判明していき、後から偽物と分かる条文は、それが判明する巻に達して初めて「⚠ 偽ルールでした」と表示が切り替わります。
+
+| ページ | 内容 |
+|---|---|
+| 人物ファイル | 事件関係者29名。陣営別の名簿と公式プロフィール、作中での動き |
+| ノートのルール | 19条を効果と使われ方から要約。偽ルールの段階開示つき |
+| 事件の記録 | 第一部・第二部の22件。結末を段階的に開示し、使われたルールへ相互リンク |
+| 統合年表 | 事件と人物の退場を作中日付つきで1本に |
+| ノート所有権の変遷 | 人間界のノート3冊が誰の手にあったかをガント図で |
+| 勢力の推移 | キラと捜査側の力関係を4指標の折れ線で(管理人による指数) |
+| メディア展開 | アニメ全37話の対応表と、実写映画・ドラマ・小説などの派生作品 |
+| 人物相関図 | 巻の進行で関係の種類そのものが変わる区間モデルの相関図 |
+| プロフィール一覧 / VS比較 / 誕生日カレンダー | 公式プロフィールの比較・並べ替え |
+| クイズ / 診断 / 体験ADV / 捜査能力テスト | 遊べるコンテンツ |
+
+## 技術構成
+
+- **Astro 7** の完全静的サイト。依存パッケージは `astro` のみで、UIフレームワーク・チャートライブラリ・CSSフレームワークは使っていません
+- グラフ・図解・キャラクターのポートレートはすべて**自作のインラインSVG**です(画像ファイルを使っていません)
+- データは `src/data/*.json`。各データの `sp` フィールドが `src/data/timeline.json` の巻序数 `ord` を参照し、`data-sp` 属性でネタバレ制御されます
+- デプロイは GitHub Actions (`withastro/action`) から GitHub Pages へ
+
+### ネタバレ制御の仕組み
+
+`src/layouts/Base.astro` に実装されています。
+
+| 名前 | 役割 |
+|---|---|
+| `data-sp="<ord>"` | この要素が確定する巻。読了位置より先ならぼかす |
+| `data-sp-hide` | ぼかしではなく `display:none` にする(一覧から丸ごと消す) |
+| `data-sp-count` | 内部の `.sp-note` に「N件を非表示にしています」と表示する |
+| `window.KIRA.progress` / `.set(ord)` | 読了位置の取得・設定 |
+| `kira:progress` | 読了位置の変更時に `document` へ発火するイベント。グラフ類はこれで再描画する |
+
+## 開発
+
+Node 22 以上が必要です。
+
+```bash
+npm install
+npm run dev      # 開発サーバ
+npm run build    # dist/ に静的ビルド
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+ビルドの確認は、`dist/` を配信して実際のブラウザで見るのが確実です。
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+npm run build
+python3 -m http.server 8099 --directory <base を解決できるディレクトリ>
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 掲載内容について
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- キャラクターイラストはすべて管理人による自作です。原作・アニメの画像は使用していません
+- あらすじ・解説文は管理人自身の言葉によるもので、原作本文の転載はしていません
+- ノートのルールは条文の引き写しではなく、効果と作中での使われ方の要約です
+- アニメと原作の巻の対応、勢力の推移の指数は、公式に示されたものではなく管理人による整理です
 
-Any static assets, like images, can be placed in the `public/` directory.
+## 権利
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+『DEATH NOTE』に関する一切の権利は、大場つぐみ氏、小畑健氏、株式会社集英社および関係各社に帰属します。当サイトは非公式のファンサイトであり、権利者とは一切関係ありません。権利者からの要請があった場合、該当コンテンツは速やかに削除・修正します。
