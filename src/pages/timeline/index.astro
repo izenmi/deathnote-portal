@@ -1,48 +1,41 @@
 ---
 import Base from '../../layouts/Base.astro';
-import exams from '../../data/cases.json';
-import points from '../../data/stats.json';
-import students from '../../data/characters.json';
+import cases from '../../data/cases.json';
+import characters from '../../data/characters.json';
 import tl from '../../data/timeline.json';
 
 const base = import.meta.env.BASE_URL;
-const volLabel = (ord: number) => tl.volumes.find((v) => v.ord === ord)?.label ?? '';
+const volOf = (ord: number) => tl.volumes.find((v) => v.ord === ord);
+const volLabel = (ord: number) => volOf(ord)?.label ?? '';
 
 type Item = {
-  ord: number; type: 'exam' | 'points' | 'exit';
+  ord: number; type: 'case' | 'exit';
   icon: string; typeLabel: string; title: string; text?: string; href?: string;
 };
 
 const items: Item[] = [
-  ...exams.map((e) => ({
-    ord: e.sp, type: 'exam' as const, icon: '📋', typeLabel: '特別試験',
-    title: e.name, text: e.season, href: `${base}cases/${e.id}/`,
+  ...cases.map((e) => ({
+    ord: e.sp, type: 'case' as const, icon: '🔍', typeLabel: '事件',
+    title: e.name, text: e.date, href: `${base}cases/${e.id}/`,
   })),
-  ...points.points
-    .filter((p) => 'event' in p && p.event && p.ord > 0)
-    .map((p) => ({
-      ord: p.ord, type: 'points' as const, icon: '📈', typeLabel: 'クラスポイント',
-      title: p.label, text: p.event as string,
-    })),
-  ...(students.characters as any[])
-    .filter((s) => s.status)
-    .map((s) => ({
-      ord: s.status.sp, type: 'exit' as const, icon: '⚠️', typeLabel: '退学',
-      title: `${s.name} ${s.status.text}`, href: `${base}characters/${s.id}/`,
+  ...(characters.characters as any[])
+    .filter((c) => c.status)
+    .map((c) => ({
+      ord: c.status.sp, type: 'exit' as const, icon: '⚠️', typeLabel: '退場',
+      title: `${c.name} ${c.status.text}`, href: `${base}characters/${c.id}/`,
     })),
 ].sort((a, b) => a.ord - b.ord);
 
 const arcs = [
-  { start: 1, end: 14, label: '1年生編' },
-  { start: 15, end: 29, label: '2年生編' },
-  { start: 30, end: 99, label: '3年生編' },
+  { start: 1, end: 7, label: '第一部(L編)' },
+  { start: 8, end: 12, label: '第二部(ニア・メロ編)' },
 ];
 ---
 
-<Base title="統合年表" description="特別試験・クラスポイント変動・退学者を1本の年表で。読了位置マーカー付き。">
+<Base title="統合年表" description="キラ事件の全体像を1本の年表で。事件と人物の退場を時系列で並べ、読了位置マーカー付きで表示します。">
   <h1>📜 統合年表</h1>
   <p class="muted">
-    特別試験・クラスポイントの変動・退学者を時系列で1本にまとめました。
+    2003年11月28日、一冊のノートが人間界に落ちた日から始まる事件の全体像です。
     「📖 ここまで読了」のラインが、あなたの読了位置(右上📖)に合わせて動きます。
   </p>
 
@@ -53,7 +46,7 @@ const arcs = [
         {items.filter((i) => i.ord >= arc.start && i.ord <= arc.end).map((i) => (
           <div class="tl-item" data-ord={i.ord}>
             <div class="tl-marker">
-              <span class="vol-badge">{volLabel(i.ord).replace(/(1年生編|2年生編|3年生編)/, '').replace(/\(.+\)/, '') || '—'}</span>
+              <span class="vol-badge">{volOf(i.ord)?.vol ?? '—'}巻</span>
             </div>
             <div
               class={`card tl-card tl-${i.type}`}
@@ -105,8 +98,7 @@ const arcs = [
       font-size: 0.7rem; font-weight: 700; border-radius: 999px; padding: 3px 8px;
     }
     .tl-card { padding: 10px 16px; }
-    .tl-exam { border-left: 4px solid var(--accent); }
-    .tl-points { border-left: 4px solid #3b82f6; }
+    .tl-case { border-left: 4px solid var(--accent); }
     .tl-exit { border-left: 4px solid #b78a1e; }
     .tl-type { font-size: 0.7rem; font-weight: 700; color: var(--ink-2); display: block; }
     .tl-title { font-weight: 700; text-decoration: none; font-size: 0.95rem; }

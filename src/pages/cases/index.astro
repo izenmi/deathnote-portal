@@ -1,32 +1,41 @@
 ---
 import Base from '../../layouts/Base.astro';
-import exams from '../../data/cases.json';
+import cases from '../../data/cases.json';
 
 const base = import.meta.env.BASE_URL;
-const arcs = ['1年生編', '2年生編', '3年生編'];
+const arcs = ['第一部', '第二部'];
+const WINNER: Record<string, { label: string; side: string }> = {
+  kira: { label: 'キラ優勢', side: 'kira' },
+  l: { label: '捜査側優勢', side: 'l' },
+  draw: { label: '決着つかず', side: 'other' },
+};
 ---
 
-<Base title="特別試験アーカイブ" description="歴代特別試験のルール・結果・退学者を年表形式で整理。ネタバレは読了位置に応じて自動で隠されます。">
-  <h1>📋 特別試験アーカイブ</h1>
-  <p class="muted">高度育成高等学校で行われた特別試験・主要イベントの記録。読了位置(右上📖)より先の試験は内容を伏せています。</p>
+<Base title="事件の記録" description="キラ事件の各局面を、状況・結末・使われたノートのルールとともに記録。ネタバレは読了位置に応じて自動で隠されます。">
+  <h1>🔍 事件の記録</h1>
+  <p class="muted">
+    キラとLの攻防を局面ごとに整理しています。読了位置(右上📖)より先の事件は内容を伏せています。
+    各ページでは「表向きの結末」と「後から判明する裏側」を段階的に開示します。
+  </p>
 
   {arcs.map((arc) => (
     <section>
       <h2 class="section-title">{arc}</h2>
       <div class="timeline" data-sp-count>
         <p class="sp-note"></p>
-        {exams.filter((e) => e.arc === arc).map((e) => (
+        {cases.filter((e) => e.arc === arc).map((e) => (
           <div class="timeline-item" data-sp={e.sp > 1 ? e.sp : undefined}>
             <div class="timeline-marker">
               <span class="vol-badge">{e.vol}巻</span>
             </div>
-            <a href={`${base}cases/${e.id}/`} class="card exam-card">
-              <div class="exam-head">
+            <a href={`${base}cases/${e.id}/`} class="card case-card">
+              <div class="case-head">
                 <strong>{e.name}</strong>
                 <span class="type-tag">{e.type}</span>
+                <span class="side-chip" data-side={WINNER[e.winner].side}>{WINNER[e.winner].label}</span>
               </div>
-              <p class="muted exam-season">{e.season}</p>
-              <p class="exam-rule">{e.rule.length > 90 ? e.rule.slice(0, 90) + '…' : e.rule}</p>
+              <p class="muted case-date">{e.date}</p>
+              <p class="case-setup">{e.setup.length > 90 ? e.setup.slice(0, 90) + '…' : e.setup}</p>
             </a>
           </div>
         ))}
@@ -61,16 +70,16 @@ const arcs = ['1年生編', '2年生編', '3年生編'];
       font-size: 0.72rem; font-weight: 700;
       border-radius: 999px; padding: 3px 8px;
     }
-    .exam-card { display: block; padding: 14px 16px; text-decoration: none; }
-    .exam-card:hover { border-color: var(--accent); }
-    .exam-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .exam-head strong { font-size: 1.02rem; }
+    .case-card { display: block; padding: 14px 16px; text-decoration: none; }
+    .case-card:hover { border-color: var(--accent); }
+    .case-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .case-head strong { font-size: 1.02rem; }
     .type-tag {
       font-size: 0.72rem; font-weight: 700;
       background: var(--accent-soft); color: var(--accent);
       border-radius: 6px; padding: 2px 8px;
     }
-    .exam-season { font-size: 0.8rem; margin: 4px 0; }
-    .exam-rule { font-size: 0.88rem; margin: 0; color: var(--ink-2); }
+    .case-date { font-size: 0.8rem; margin: 4px 0; }
+    .case-setup { font-size: 0.88rem; margin: 0; color: var(--ink-2); }
   </style>
 </Base>

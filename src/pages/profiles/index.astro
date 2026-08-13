@@ -84,7 +84,7 @@ const tables = [
         {t.rows.map((r) => (
           <li class={`card rk-row${r.rank <= 3 ? ' rk-top' : ''}`}>
             <span class={`rk-rank rk-rank-${r.rank}`}>{r.rank}</span>
-            <Portrait id={r.s.portrait ? r.s.id : `sil-${r.s.id}`} size={40} classKey={r.s.class} />
+            <Portrait id={r.s.portrait ? r.s.id : `sil-${r.s.id}`} size={40} sideKey={r.s.side} />
             <a href={`${base}characters/${r.s.id}/`} class="rk-name">{r.s.name}</a>
             {r.s.class && <span class="class-chip" data-class={r.s.class}>{r.s.class}</span>}
             <b class="rank" data-rank={r.grade}>{r.grade}</b>
@@ -101,7 +101,7 @@ const tables = [
       {growth.map((g, i) => (
         <li class={`card rk-row${i < 3 ? ' rk-top' : ''}`}>
           <span class={`rk-rank rk-rank-${i + 1}`}>{i + 1}</span>
-          <Portrait id={g!.s.portrait ? g!.s.id : `sil-${g!.s.id}`} size={40} classKey={g!.s.class} />
+          <Portrait id={g!.s.portrait ? g!.s.id : `sil-${g!.s.id}`} size={40} sideKey={g!.s.side} />
           <a href={`${base}characters/${g!.s.id}/`} class="rk-name">{g!.s.name}</a>
           {g!.s.class && <span class="class-chip" data-class={g!.s.class}>{g!.s.class}</span>}
           <span class="rk-growth-detail muted">

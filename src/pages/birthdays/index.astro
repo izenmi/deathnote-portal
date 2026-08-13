@@ -35,7 +35,7 @@ const months = Array.from({ length: 12 }, (_, i) => ({
               <li data-sp={s.sp > 1 ? s.sp : undefined} data-sp-hide={s.sp > 1 ? '' : undefined} data-bday={s.birthday} data-name={s.name} data-id={s.id}>
                 <a href={`${base}characters/${s.id}/`} class="bd-item">
                   <span class="bd-day">{s.day}日</span>
-                  <Portrait id={s.portrait ? s.id : `sil-${s.id}`} size={34} classKey={s.class} />
+                  <Portrait id={s.portrait ? s.id : `sil-${s.id}`} size={34} sideKey={s.side} />
                   <span>{s.name}</span>
                 </a>
               </li>

@@ -14,11 +14,12 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
 const clientNodes = Object.fromEntries(nodes.map((n) => [n.id, { x: n.x, y: n.y, sp: n.s.sp }]));
 ---
 
-<Base title="人物相関図" description="よう実の人物相関図。読了位置に連動して関係が変化するインタラクティブマップ。">
+<Base title="人物相関図" description="キラ事件の人物相関図。読了位置に連動して関係が変化するインタラクティブマップ。">
   <h1>🕸️ 人物相関図</h1>
   <p class="muted">
     読了位置(右上📖)を動かすと、関係線が物語の進行に合わせて現れたり消えたりします。
-    ポートレートをタップすると生徒詳細へ。線にカーソルを合わせると関係の説明が出ます。
+    同じ二人でも、巻が進むにつれて関係の性質そのものが変わっていきます。
+    ポートレートをタップすると人物ファイルへ。線にカーソルを合わせると関係の説明が出ます。
   </p>
 
   <div class="card legend-card">
@@ -32,7 +33,7 @@ const clientNodes = Object.fromEntries(nodes.map((n) => [n.id, { x: n.x, y: n.y,
 
   <div class="card rel-wrap">
     <div class="rel-scroll">
-      <svg id="rel-svg" viewBox="0 0 1200 900" width="1200" role="img" aria-label="人物相関図">
+      <svg id="rel-svg" viewBox="0 0 1300 1030" width="1300" role="img" aria-label="人物相関図">
         <g id="rel-edges"></g>
         {nodes.map((n) => (
           <a href={`${base}characters/${n.id}/`}>
@@ -43,7 +44,7 @@ const clientNodes = Object.fromEntries(nodes.map((n) => [n.id, { x: n.x, y: n.y,
               data-sp-hide={n.s.sp > 1 ? '' : undefined}
               data-sp-label={n.s.sp > 1 ? spLabel(n.s.sp) : undefined}
             >
-              <Portrait id={n.s.portrait ? n.id : `sil-${n.id}`} size={64} classKey={n.s.class} />
+              <Portrait id={n.s.portrait ? n.id : `sil-${n.id}`} size={64} sideKey={n.s.side} />
               <text x="32" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">{n.s.name}</text>
             </g>
           </a>

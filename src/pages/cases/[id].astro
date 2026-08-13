@@ -1,41 +1,47 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Portrait from '../../components/Portrait.astro';
-import exams from '../../data/cases.json';
-import students from '../../data/characters.json';
+import cases from '../../data/cases.json';
+import characters from '../../data/characters.json';
 import timeline from '../../data/timeline.json';
 
 export function getStaticPaths() {
-  return exams.map((e) => ({ params: { id: e.id } }));
+  return cases.map((e) => ({ params: { id: e.id } }));
 }
 
 const base = import.meta.env.BASE_URL;
 const { id } = Astro.params;
-const e = exams.find((x) => x.id === id)!;
+const e = cases.find((x) => x.id === id)!;
 const chars = e.chars
-  .map((cid) => students.characters.find((s) => s.id === cid))
+  .map((cid) => characters.characters.find((c) => c.id === cid))
   .filter(Boolean);
 const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
+const WINNER: Record<string, { label: string; side: string }> = {
+  kira: { label: 'キラ優勢', side: 'kira' },
+  l: { label: '捜査側優勢', side: 'l' },
+  draw: { label: '決着つかず', side: 'other' },
+};
 ---
 
-<Base title={e.name} description={`${e.arc}${e.vol}巻「${e.name}」のルールと結果。`}>
-  <nav class="crumbs muted"><a href={`${base}cases/`}>特別試験アーカイブ</a> / {e.name}</nav>
+<Base title={e.name} description={`${e.vol}巻「${e.name}」の状況と結末。`}>
+  <nav class="crumbs muted"><a href={`${base}cases/`}>事件の記録</a> / {e.name}</nav>
 
-  <div class="card exam-detail" data-sp={e.sp > 1 ? e.sp : undefined} data-sp-label={spLabel(e.sp)}>
+  <div class="card case-detail" data-sp={e.sp > 1 ? e.sp : undefined} data-sp-label={spLabel(e.sp)}>
     <div class="head">
       <h1>{e.name}</h1>
       <p class="tags">
-        <span class="vol-tag">{e.arc}{e.vol}巻</span>
+        <span class="vol-tag">{e.vol}巻</span>
         <span class="type-tag">{e.type}</span>
-        <span class="muted">{e.season}</span>
+        <span class="side-chip" data-side={WINNER[e.winner].side}>{WINNER[e.winner].label}</span>
+        <span class="muted">{e.date}</span>
       </p>
     </div>
-    <h2 class="section-title">ルール</h2>
-    <p>{e.rule}</p>
+    <h2 class="section-title">状況</h2>
+    <p>{e.setup}</p>
   </div>
 
   <section>
-    <h2 class="section-title">結果・顛末<small class="muted">(読了位置に応じて表示)</small></h2>
+    <h2 class="section-title">結末・顛末<small class="muted">(読了位置に応じて段階的に表示)</small></h2>
     <div data-sp-count>
       <p class="sp-note"></p>
       {e.result.map((r) => (
@@ -46,19 +52,36 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
     </div>
   </section>
 
+  {e.tricks && e.tricks.length > 0 && (
+    <section>
+      <h2 class="section-title">使われたノートのルール</h2>
+      <div data-sp-count>
+        <p class="sp-note"></p>
+        <ul class="tricks">
+          {e.tricks.map((t) => (
+            <li class="card trick-item" data-sp={t.sp > 1 ? t.sp : undefined} data-sp-label={spLabel(t.sp)}>
+              <a href={`${base}rules/#${t.ruleId}`} class="trick-link">📓 ルールを見る</a>
+              <span>{t.text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
   {chars.length > 0 && (
     <section>
-      <h2 class="section-title">キーパーソン</h2>
-      <div class="char-row">
-        {chars.map((s) => (
+      <h2 class="section-title">関係者</h2>
+      <div class="char-row" data-sp-count>
+        {chars.map((c) => (
           <a
-            href={`${base}characters/${s!.id}/`}
+            href={`${base}characters/${c!.id}/`}
             class="char-chip card"
-            data-sp={s!.sp > 1 ? s!.sp : undefined}
-            data-sp-hide={s!.sp > 1 ? '' : undefined}
+            data-sp={c!.sp > 1 ? c!.sp : undefined}
+            data-sp-hide={c!.sp > 1 ? '' : undefined}
           >
-            <Portrait id={s!.portrait ? s!.id : `sil-${s!.id}`} size={44} classKey={s!.class} />
-            <span>{s!.name}</span>
+            <Portrait id={c!.portrait ? c!.id : `sil-${c!.id}`} size={44} sideKey={c!.side} />
+            <span>{c!.name}</span>
           </a>
         ))}
       </div>
@@ -67,8 +90,8 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
 
   <style>
     .crumbs { font-size: 0.85rem; margin-bottom: 12px; }
-    .exam-detail { padding: 20px; }
-    .exam-detail h1 { margin: 0 0 8px; font-size: 1.4rem; }
+    .case-detail { padding: 20px; }
+    .case-detail h1 { margin: 0 0 8px; font-size: 1.4rem; }
     .tags { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0; }
     .vol-tag {
       background: var(--noir); color: var(--noir-ink);
@@ -80,6 +103,12 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
       border-radius: 6px; padding: 2px 8px;
     }
     .result-item { padding: 4px 18px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
+    .tricks { list-style: none; padding: 0; display: grid; gap: 10px; }
+    .trick-item { padding: 12px 14px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+    .trick-link {
+      flex-shrink: 0; font-size: 0.75rem; font-weight: 700; text-decoration: none;
+      color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 8px;
+    }
     .char-row { display: flex; flex-wrap: wrap; gap: 8px; }
     .char-chip {
       display: inline-flex; align-items: center; gap: 8px;
