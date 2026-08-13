@@ -14,9 +14,12 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 }));
 ---
 
-<Base title="誕生日カレンダー" description="よう実キャラの公式誕生日を月別カレンダーで。今日が誕生日の生徒もチェック。">
+<Base title="誕生日カレンダー" description="キラ事件の関係者の公式誕生日を月別カレンダーで。今日が誕生日の人物もチェックできます。">
   <h1>🎂 誕生日カレンダー</h1>
-  <p class="muted">MF文庫J公式サイトに記載のある{withBday.length}名の誕生日を月別にまとめました。</p>
+  <p class="muted">
+    公式資料に生年月日の記載がある{withBday.length}名の誕生日を月別にまとめました。
+    読了位置(右上📖)より先に登場する人物は伏せています。
+  </p>
 
   <div id="bd-today-card" class="card bd-today" hidden>
     <h2>🎉 今日(<span id="bd-today-date"></span>)が誕生日</h2>
