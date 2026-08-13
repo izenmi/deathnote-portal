@@ -1,101 +1,94 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Portrait from '../../components/Portrait.astro';
-import RadarChart from '../../components/RadarChart.astro';
 import data from '../../data/characters.json';
-import exams from '../../data/cases.json';
+import cases from '../../data/cases.json';
 import timeline from '../../data/timeline.json';
 
 export function getStaticPaths() {
-  return data.students.map((s) => ({ params: { id: s.id } }));
+  return data.characters.map((c) => ({ params: { id: c.id } }));
 }
 
 const base = import.meta.env.BASE_URL;
 const { id } = Astro.params;
-const s = data.students.find((x) => x.id === id)!;
+const c = data.characters.find((x) => x.id === id)!;
 
-const classLabel: Record<string, string> = {
-  A: '1年A組(坂柳クラス)', B: '1年B組(一之瀬クラス)',
-  C: '1年C組(龍園クラス)', D: '1年D組(綾小路・堀北クラス)',
-};
-const groupLabel = data.groups.find((g) => g.key === s.group)?.label ?? '';
-
-const AXES = [
-  ['academic', '学力'], ['physical', '身体能力'], ['adapt', '機転思考力'], ['social', '社会貢献性'],
-] as const;
-const radarValues = (oaa: any) => AXES.map(([k, label]) => ({ label, grade: oaa[k][0], score: oaa[k][1] }));
-
-const relatedExams = exams.filter((e) => e.chars.includes(s.id));
+const sideLabel = data.sides.find((s) => s.key === c.side)?.label ?? '';
+const groupLabel = data.groups.find((g) => g.key === c.group)?.label ?? '';
 const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
+
+const p: any = c.profile ?? {};
+const fmtDate = (d: string | null) => {
+  if (!d) return null;
+  const [y, m, day] = d.split('-');
+  return `${y}年${Number(m)}月${Number(day)}日`;
+};
+const rows = [
+  ['生年月日', fmtDate(p.born)],
+  ['身長', p.height ? `${p.height}cm${p.est ? '(推定)' : ''}` : null],
+  ['体重', p.weight ? `${p.weight}kg${p.est ? '(推定)' : ''}` : null],
+  ['血液型', p.blood ? `${p.blood}型` : null],
+  ['好きなもの', p.like ?? null],
+  ['苦手なもの', p.dislike ?? null],
+].filter(([, v]) => v) as [string, string][];
+
+const relatedCases = cases.filter((e: any) => e.chars?.includes(c.id));
 ---
 
-<Base title={`${s.name}(${s.kana})`} description={`${s.name}のOAA風能力データと人物データ。${s.bio.slice(0, 60)}`}>
-  <nav class="crumbs muted"><a href={`${base}characters/`}>生徒名鑑</a> / {s.name}</nav>
+<Base title={`${c.name}(${c.kana})`} description={`${c.name}の人物ファイル。${c.bio.slice(0, 60)}`}>
+  <nav class="crumbs muted"><a href={`${base}characters/`}>人物ファイル</a> / {c.name}</nav>
 
   <div class="profile card">
     <div class="profile-head">
-      <Portrait id={s.portrait ? s.id : `sil-${s.id}`} size={128} classKey={s.class} />
+      <Portrait id={c.portrait ? c.id : `sil-${c.id}`} size={128} sideKey={c.side} />
       <div>
-        <h1>{s.name} <small class="muted">{s.kana}</small></h1>
+        <h1>{c.name} <small class="muted">{c.kana}</small></h1>
         <p class="tags">
-          {s.class && <span class="class-chip" data-class={s.class}>{classLabel[s.class]}</span>}
+          <span class="side-chip" data-side={c.side}>{sideLabel}</span>
           <span class="group-tag">{groupLabel}</span>
+          <span class="group-tag">初登場: {spLabel(c.sp)}</span>
         </p>
-        {'status' in s && s.status && (
-          <p data-sp={s.status.sp} data-sp-label={spLabel(s.status.sp)}>
-            <span class="status-badge">⚠ {s.status.text}</span>
+        {'status' in c && c.status && (
+          <p data-sp={c.status.sp} data-sp-label={spLabel(c.status.sp)}>
+            <span class="status-badge">⚠ {c.status.text}</span>
           </p>
         )}
       </div>
     </div>
-    <p class="bio">{s.bio}</p>
+    <p class="bio">{c.bio}</p>
   </div>
 
-  {'oaaHist' in s && s.oaaHist ? (
+  {rows.length > 0 && (
     <section>
-      <h2 class="section-title">OAA 能力データ<small class="muted">(公式サイト掲載値)</small></h2>
-      <div class="oaa-wrap">
-        {s.oaaHist.map((h: any) => (
-          <div class="card oaa-card" data-sp={h.sp >= 30 ? h.sp : undefined} data-sp-label={spLabel(h.sp)}>
-            <h3>{h.era}</h3>
-            <RadarChart values={radarValues(h)} />
-            {h.overall && (
-              <p class="overall">総合 <b class="rank" data-rank={h.overall[0]}>{h.overall[0]}</b> <span class="muted">({h.overall[1]})</span></p>
-            )}
-          </div>
-        ))}
-        {'oaaTrue' in s && s.oaaTrue && (
-          <div class="card oaa-card" data-sp="8" data-sp-label="1年生編7巻">
-            <h3>真の実力(ネタバレ)</h3>
-            <RadarChart values={radarValues(s.oaaTrue)} />
-          </div>
-        )}
-      </div>
-      <p class="muted oaa-src">
-        出典: MF文庫J『よう実』2年生編/3年生編 公式サイトのOAAデータ。読了位置が3年生編に達すると最新値が表示されます。
-        <a href={`${base}versus/?a=${s.id}`}>この生徒を他の生徒と比較する →</a>
-      </p>
-    </section>
-  ) : 'oaa' in s && s.oaa && (
-    <section>
-      <h2 class="section-title">OAA 能力データ<small class="muted">(管理人推定)</small></h2>
-      <div class="oaa-wrap">
-        <div class="card oaa-card">
-          <h3>推定値</h3>
-          <RadarChart values={radarValues(s.oaa)} />
-        </div>
+      <h2 class="section-title">プロフィール<small class="muted">(公式資料より)</small></h2>
+      <div class="card prof-card">
+        <dl class="prof">
+          {rows.map(([k, v]) => (
+            <div class="prof-row">
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="muted prof-src">
+          <a href={`${base}versus/?a=${c.id}`}>この人物を他の人物と比較する →</a>
+        </p>
       </div>
     </section>
   )}
 
-  {'notes' in s && s.notes && s.notes.length > 0 && (
+  {c.kind === 'shinigami' && (
+    <p class="muted note-shinigami">※ 死神には人間のような身長・体重・血液型のプロフィールは設定されていません。</p>
+  )}
+
+  {'notes' in c && c.notes && c.notes.length > 0 && (
     <section>
-      <h2 class="section-title">その後の歩み<small class="muted">(読了位置に応じて表示)</small></h2>
+      <h2 class="section-title">作中での動き<small class="muted">(読了位置に応じて表示)</small></h2>
       <div data-sp-count>
         <p class="sp-note"></p>
         <ul class="notes">
-          {s.notes.map((n) => (
-            <li class="card note-item" data-sp={n.sp} data-sp-label={spLabel(n.sp)}>
+          {c.notes.map((n) => (
+            <li class="card note-item" data-sp={n.sp > 1 ? n.sp : undefined} data-sp-label={spLabel(n.sp)}>
               <span class="note-vol">{spLabel(n.sp)}</span>
               <span>{n.text}</span>
             </li>
@@ -105,16 +98,16 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
     </section>
   )}
 
-  {relatedExams.length > 0 && (
+  {relatedCases.length > 0 && (
     <section>
-      <h2 class="section-title">関連する特別試験</h2>
+      <h2 class="section-title">関わった事件</h2>
       <div data-sp-count>
         <p class="sp-note"></p>
-        <ul class="exam-links">
-          {relatedExams.map((e) => (
+        <ul class="case-links">
+          {relatedCases.map((e: any) => (
             <li data-sp={e.sp > 1 ? e.sp : undefined} data-sp-hide={e.sp > 1 ? '' : undefined}>
-              <a href={`${base}cases/${e.id}/`} class="card exam-link">
-                <span class="muted">{e.arc}{e.vol}巻</span> {e.name}
+              <a href={`${base}cases/${e.id}/`} class="card case-link">
+                <span class="muted">{e.vol}巻</span> {e.name}
               </a>
             </li>
           ))}
@@ -128,7 +121,7 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
     .profile { padding: 20px; }
     .profile-head { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
     .profile-head h1 { margin: 0 0 6px; font-size: 1.5rem; }
-    .tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
+    .tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; align-items: center; }
     .group-tag {
       font-size: 0.8em; padding: 0.1em 0.6em; border-radius: 999px;
       background: var(--surface-2); color: var(--ink-2);
@@ -138,19 +131,22 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
       font-weight: 700; font-size: 0.85rem; border-radius: 8px; padding: 3px 10px;
     }
     .bio { margin-bottom: 0; }
-    .oaa-wrap { display: flex; gap: 14px; flex-wrap: wrap; }
-    .oaa-card { padding: 14px 18px; }
-    .oaa-card h3 { margin: 0 0 4px; font-size: 0.95rem; color: var(--ink-2); }
-    .overall { margin: 4px 0 0; font-size: 0.9rem; text-align: center; }
-    .oaa-src { font-size: 0.78rem; margin-top: 10px; }
+    .prof-card { padding: 16px 20px; }
+    .prof { margin: 0; display: grid; gap: 2px; }
+    .prof-row { display: flex; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+    .prof-row:last-child { border-bottom: none; }
+    .prof dt { flex: 0 0 7.5em; color: var(--ink-2); font-size: 0.88rem; }
+    .prof dd { margin: 0; font-weight: 600; }
+    .prof-src { font-size: 0.78rem; margin: 12px 0 0; }
+    .note-shinigami { font-size: 0.82rem; margin-top: 14px; }
     .notes { list-style: none; padding: 0; display: grid; gap: 10px; }
     .note-item { padding: 12px 14px; display: flex; gap: 12px; align-items: baseline; }
     .note-vol {
       flex-shrink: 0; font-size: 0.75rem; font-weight: 700; color: var(--accent);
       background: var(--accent-soft); border-radius: 6px; padding: 2px 8px;
     }
-    .exam-links { list-style: none; padding: 0; display: grid; gap: 8px; }
-    .exam-link { display: block; padding: 10px 14px; text-decoration: none; }
-    .exam-link:hover { border-color: var(--accent); }
+    .case-links { list-style: none; padding: 0; display: grid; gap: 8px; }
+    .case-link { display: block; padding: 10px 14px; text-decoration: none; }
+    .case-link:hover { border-color: var(--accent); }
   </style>
 </Base>

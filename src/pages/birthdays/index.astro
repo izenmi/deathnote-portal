@@ -4,7 +4,7 @@ import Portrait from '../../components/Portrait.astro';
 import data from '../../data/characters.json';
 
 const base = import.meta.env.BASE_URL;
-const withBday = (data.students as any[])
+const withBday = (data.characters as any[])
   .filter((s) => s.birthday)
   .map((s) => ({ ...s, month: Number(s.birthday.split('-')[0]), day: Number(s.birthday.split('-')[1]) }));
 

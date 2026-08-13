@@ -1,42 +1,42 @@
 ---
 import Base from '../layouts/Base.astro';
 import Portrait from '../components/Portrait.astro';
-import points from '../data/stats.json';
-import students from '../data/characters.json';
+import characters from '../data/characters.json';
 
 const base = import.meta.env.BASE_URL;
-const pickup = ['ayanokoji', 'horikita', 'ichinose', 'ryuen', 'sakayanagi', 'karuizawa']
-  .map((id) => students.students.find((s) => s.id === id)!)
+const pickup = ['light', 'l', 'ryuk', 'misa', 'near', 'mello']
+  .map((id) => characters.characters.find((c) => c.id === id)!)
   .filter(Boolean);
 
 const sections = [
-  { href: `${base}characters/`, icon: '🎓', title: '生徒名鑑', desc: 'OAA風レーダーチャート付きの全キャラデータベース' },
-  { href: `${base}relations/`, icon: '🕸️', title: '人物相関図', desc: '読了位置で変化するインタラクティブ相関図' },
-  { href: `${base}profiles/`, icon: '🏆', title: 'OAAランキング', desc: '公式数値による能力別ランキングと成長率' },
-  { href: `${base}timeline/`, icon: '📜', title: '統合年表', desc: '試験・ポイント・退学者を1本の年表で辿る' },
-  { href: `${base}versus/`, icon: '⚔️', title: 'VS比較', desc: '2人のOAAレーダーを重ねて比較' },
-  { href: `${base}cases/`, icon: '📋', title: '特別試験アーカイブ', desc: '歴代特別試験のルールと結果を年表で辿る' },
-  { href: `${base}stats/`, icon: '📈', title: 'クラスポイント推移', desc: '4クラスの攻防をグラフで可視化' },
-  { href: `${base}taiken/`, icon: '🎭', title: '特別試験を体験', desc: '満場一致特別試験を一人称で体験するADV' },
+  { href: `${base}characters/`, icon: '🗂', title: '人物ファイル', desc: '捜査本部から死神まで、事件関係者の名簿と公式プロフィール' },
+  { href: `${base}rules/`, icon: '📓', title: 'ノートのルール', desc: '読み進めた分だけ判明していく、デスノートの使用条件' },
+  { href: `${base}cases/`, icon: '🔍', title: '事件の記録', desc: 'キラとLの攻防を、事件ごとに段階を追って記録' },
+  { href: `${base}timeline/`, icon: '📜', title: '統合年表', desc: '2003年11月28日から始まる事件の全体像' },
+  { href: `${base}notebooks/`, icon: '📕', title: 'ノート所有権の変遷', desc: '人間界に存在するノートが誰の手にあったのか' },
+  { href: `${base}relations/`, icon: '🕸️', title: '人物相関図', desc: '読了位置に応じて関係線が変化する相関図' },
+  { href: `${base}profiles/`, icon: '📇', title: 'プロフィール一覧', desc: '生年月日・身長・血液型を並べ替えて比較' },
+  { href: `${base}versus/`, icon: '⚔️', title: 'VS比較', desc: '2人のプロフィールと関わった事件を並べて比較' },
+  { href: `${base}birthdays/`, icon: '🎂', title: '誕生日カレンダー', desc: '公式設定の誕生日を月別カレンダーで' },
+  { href: `${base}stats/`, icon: '📈', title: '勢力の推移', desc: 'キラと捜査側の優勢がどう入れ替わったかをグラフで' },
+  { href: `${base}media/`, icon: '📺', title: 'メディア展開', desc: 'アニメ全37話・実写映画・ドラマ・小説の一覧' },
   { href: `${base}quiz/`, icon: '✏️', title: '原作知識クイズ', desc: '難易度3段階×10問であなたの読み込み度を測定' },
-  { href: `${base}shindan/`, icon: '🧭', title: 'クラス適性診断', desc: 'あなたが入学したらどのクラス?' },
-  { href: `${base}sousa/`, icon: '💪', title: '実力テスト', desc: 'ミニゲームであなたのOAAを実測+成績カード発行' },
-  { href: `${base}rules/`, icon: '📖', title: '用語集・図解', desc: 'ポイント制度や試験の仕組みを図解で解説' },
-  { href: `${base}media/`, icon: '📺', title: 'アニメ⇔原作対応表', desc: 'アニメの続きはこの巻から。全4期の対応表' },
-  { href: `${base}birthdays/`, icon: '🎂', title: '誕生日カレンダー', desc: '公式誕生日を月別カレンダーで' },
+  { href: `${base}shindan/`, icon: '🧭', title: 'ノートを拾ったら診断', desc: 'あなたがノートを手にしたらどう動くか' },
+  { href: `${base}taiken/`, icon: '🎭', title: '事件を体験', desc: '選択を重ねて事件の一場面を追体験するADV' },
+  { href: `${base}sousa/`, icon: '🧠', title: '捜査能力テスト', desc: 'ミニゲームで捜査適性を実測し、成績カードを発行' },
 ];
-const bdayList = students.students
-  .filter((s: any) => s.birthday)
-  .map((s: any) => ({ b: s.birthday, n: s.name, sp: s.sp }));
+const bdayList = characters.characters
+  .filter((c: any) => c.birthday)
+  .map((c: any) => ({ b: c.birthday, n: c.name, sp: c.sp }));
 ---
 
 <Base>
   <section class="hero card">
-    <p class="hero-tag">WELCOME TO THE CLASSROOM OF THE SUPREME MERITOCRACY</p>
-    <h1>高度育成高等学校<br />学内ポータル</h1>
+    <p class="hero-tag">THE KIRA CASE ARCHIVE</p>
+    <h1>キラ事件ポータル<br />捜査資料室</h1>
     <p class="hero-lead">
-      進学率・就職率100%。しかしその実態は、クラスと個人が「実力」で選別される超実力至上主義の教育機関——。
-      ここは『ようこそ実力至上主義の教室へ』の世界を、生徒名鑑・特別試験の記録・クラスポイントの攻防から辿る非公式ファンサイトです。
+      2003年11月28日。一冊のノートが人間界に落ちた日から、名前を書かれた者が次々に死ぬ連続殺人——「キラ事件」が始まった。
+      ここは『DEATH NOTE』の物語を、人物ファイル・事件の記録・ノートのルールから辿る非公式ファンサイトです。
     </p>
     <p class="hero-note">
       📖 右上のボタンで<strong>読了位置</strong>を設定すると、それより先のネタバレは自動で隠されます。未読の方も安心してご利用ください。
@@ -77,47 +77,24 @@ const bdayList = students.students
   </script>
 
   <section>
-    <h2 class="section-title">注目の生徒</h2>
-    <div class="pickup-row">
-      {pickup.map((s) => (
-        <a href={`${base}characters/${s.id}/`} class="pickup-card card">
-          <Portrait id={s.portrait ? s.id : `sil-${s.id}`} size={84} classKey={s.class} />
-          <strong>{s.name}</strong>
-        </a>
-      ))}
+    <h2 class="section-title">事件の中心人物</h2>
+    <div data-sp-count>
+      <p class="sp-note"></p>
+      <div class="pickup-row">
+        {pickup.map((c) => (
+        <a
+          href={`${base}characters/${c.id}/`}
+          class="pickup-card card"
+          data-sp={c.sp > 1 ? c.sp : undefined}
+          data-sp-hide={c.sp > 1 ? '' : undefined}
+        >
+            <Portrait id={c.portrait ? c.id : `sil-${c.id}`} size={84} sideKey={c.side} />
+            <strong>{c.name}</strong>
+          </a>
+        ))}
+      </div>
     </div>
   </section>
-
-  <section>
-    <h2 class="section-title">クラスポイント現況</h2>
-    <div id="standings" class="grid standings-grid"></div>
-    <p class="muted" style="font-size: 0.82rem;">読了位置時点での順位を表示しています。<a href={`${base}stats/`}>推移グラフを見る →</a></p>
-  </section>
-
-  <script is:inline define:vars={{ data: points }}>
-    const box = document.getElementById('standings');
-    const CLASS_KEYS = { sakayanagi: 'A', ichinose: 'B', ryuen: 'C', horikita: 'D' };
-    const render = () => {
-      const progress = window.KIRA ? window.KIRA.progress : 0;
-      const visible = data.points.filter((p) => p.ord <= progress);
-      const snap = visible[visible.length - 1] ?? data.points[0];
-      const rows = data.series
-        .map((s) => ({ label: s.label, key: s.key, cp: snap[s.key] }))
-        .sort((a, b) => b.cp - a.cp);
-      box.innerHTML = rows
-        .map(
-          (r, i) => `<div class="card standing-card">
-            <span class="standing-pos">${i + 1}位</span>
-            <span class="class-chip" data-class="${CLASS_KEYS[r.key]}">${r.label}</span>
-            <b class="standing-cp">${r.cp}<small>cp</small></b>
-            <span class="standing-when muted">${snap.label}時点</span>
-          </div>`
-        )
-        .join('');
-    };
-    document.addEventListener('kira:progress', render);
-    window.addEventListener('DOMContentLoaded', render);
-  </script>
 
   <style>
     .hero { padding: 30px 26px; border-top: 4px solid var(--accent); }
@@ -140,17 +117,6 @@ const bdayList = students.students
       padding: 14px 18px; text-decoration: none; font-size: 0.88rem;
     }
     .pickup-card:hover { border-color: var(--accent); }
-    .standings-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
     .home-bday { padding: 10px 16px; margin-top: 14px; font-size: 0.92rem; border-left: 4px solid var(--accent); }
-  </style>
-
-  <style is:global>
-    .standing-card {
-      padding: 12px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .standing-pos { font-weight: 800; color: var(--accent); }
-    .standing-cp { margin-left: auto; font-size: 1.1rem; }
-    .standing-cp small { font-size: 0.7rem; color: var(--ink-2); margin-left: 2px; }
-    .standing-when { flex-basis: 100%; font-size: 0.72rem; }
   </style>
 </Base>

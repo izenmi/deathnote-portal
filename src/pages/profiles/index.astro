@@ -6,7 +6,7 @@ import data from '../../data/characters.json';
 const base = import.meta.env.BASE_URL;
 
 type Snap = { era: string; sp: number; [k: string]: any };
-const students = data.students as any[];
+const students = data.characters as any[];
 
 const AXES = [
   ['academic', '学力'], ['physical', '身体能力'], ['adapt', '機転思考力'],

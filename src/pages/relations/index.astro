@@ -6,7 +6,7 @@ import data from '../../data/characters.json';
 import timeline from '../../data/timeline.json';
 
 const base = import.meta.env.BASE_URL;
-const byId = Object.fromEntries((data.students as any[]).map((s) => [s.id, s]));
+const byId = Object.fromEntries((data.characters as any[]).map((s) => [s.id, s]));
 const nodes = rel.nodes.map((n) => ({ ...n, s: byId[n.id] })).filter((n) => n.s);
 const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
 

@@ -24,7 +24,7 @@ const items: Item[] = [
       ord: p.ord, type: 'points' as const, icon: '📈', typeLabel: 'クラスポイント',
       title: p.label, text: p.event as string,
     })),
-  ...(students.students as any[])
+  ...(students.characters as any[])
     .filter((s) => s.status)
     .map((s) => ({
       ord: s.status.sp, type: 'exit' as const, icon: '⚠️', typeLabel: '退学',
