@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#14141a"/>
+  <rect x="15" y="12" width="34" height="40" rx="3" fill="#0a0a0e" stroke="#a80f28" stroke-width="2.5"/>
+  <text x="32" y="41" font-family="Hiragino Kaku Gothic ProN, sans-serif" font-size="21" font-weight="800" fill="#ececf2" text-anchor="middle">捜</text>
+</svg>
