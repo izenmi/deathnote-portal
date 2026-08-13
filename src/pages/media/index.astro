@@ -1,63 +1,96 @@
 ---
 import Base from '../../layouts/Base.astro';
-import anime from '../../data/media.json';
+import media from '../../data/media.json';
+import timeline from '../../data/timeline.json';
+
+const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
+const anime = media.anime;
 ---
 
-<Base title="アニメ⇔原作対応表" description="TVアニメ全4期と原作巻の対応表。アニメの続きはこの巻から。">
-  <h1>📺 アニメ⇔原作対応表</h1>
+<Base title="メディア展開" description="TVアニメ全37話の対応表と、実写映画・ドラマ・小説などの派生作品ガイド。">
+  <h1>📺 メディア展開</h1>
   <p class="muted">
-    TVアニメ各期が原作のどこに対応するかをまとめました。
-    「この期まで見た」ボタンを押すと、サイト全体のネタバレ表示があなたの視聴位置に合わせて設定されます。
+    TVアニメの各話が原作のどのあたりに対応するかと、実写映画・ドラマ・小説などの派生作品をまとめました。
+    「ここまで見た」ボタンを押すと、サイト全体のネタバレ表示が視聴位置に合わせて設定されます。
   </p>
 
   <section>
     <h2 class="section-title">アニメの続きを読むなら</h2>
     <div class="an-guide">
-      {anime.seasons.map((s) => (
+      {anime.blocks.map((b) => (
         <div class="card an-guide-row">
-          <span class="an-season-tag">{s.title}</span>
-          <span class="an-range muted">{s.novelRange}</span>
-          <span class="an-cont">→ 続きは<strong>{s.contLabel}</strong>から</span>
-          <button class="an-set primary-btn" data-ord={s.contOrd} data-name={s.title}>
-            この期まで見た
-          </button>
+          <span class="an-season-tag">{b.range}</span>
+          <span class="an-range muted">{b.novelRange}</span>
+          <span class="an-cont">→ 続きは<strong>{b.contLabel}</strong>から</span>
+          <button class="an-set primary-btn" data-ord={b.contOrd}>ここまで見た</button>
         </div>
       ))}
     </div>
-    <p class="muted" style="font-size: 0.82rem;">
-      ✨ {anime.next_season}も発表済み。放送中の期の対応巻は暫定です。
+    <p class="muted small-note">
+      ※ 話数と原作の巻の対応は公式に示されたものではなく、管理人による暫定的な対応づけです。
+      アニメは終盤にかけて原作からの改変が加えられているため、あくまで目安としてご覧ください。
     </p>
   </section>
 
-  {anime.seasons.map((s) => (
-    <section>
-      <h2 class="section-title">
-        {s.title}
-        <small class="muted">{s.year} / {s.count} / 原作: {s.novelRange}</small>
-        {'airing' in s && s.airing && <span class="an-airing">放送中</span>}
-      </h2>
+  <section>
+    <h2 class="section-title">
+      {anime.title}
+      <small class="muted">{anime.year} / {anime.count}</small>
+    </h2>
+    {anime.blocks.map((b) => (
       <div class="card an-table-wrap">
+        <div class="an-block-head">
+          <strong>{b.range}</strong>
+          <span class="muted">{b.novelRange}</span>
+        </div>
         <table class="an-table">
-          <thead><tr><th>話数</th><th>サブタイトル</th></tr></thead>
           <tbody>
-            {s.episodes.map((e) => (
+            {b.episodes.map((e) => (
               <tr><td class="an-num">第{e.num}話</td><td>{e.title}</td></tr>
             ))}
           </tbody>
         </table>
       </div>
-    </section>
-  ))}
+    ))}
+  </section>
 
-  <p class="muted" style="font-size: 0.78rem;">
-    出典: Wikipedia「ようこそ実力至上主義の教室へのアニメエピソード一覧」および TVアニメ公式サイト STORY ページ。
+  <section>
+    <h2 class="section-title">派生作品</h2>
+    <div data-sp-count>
+      <p class="sp-note"></p>
+      <div class="grid derived-grid">
+        {media.derived.map((d) => (
+          <div class="card derived-card" data-sp={d.sp > 1 ? d.sp : undefined} data-sp-hide={d.sp > 1 ? '' : undefined}>
+            <div class="derived-head">
+              <span class="kind-tag">{d.kind}</span>
+              <span class="muted">{d.year}</span>
+            </div>
+            <strong class="derived-title">{d.title}</strong>
+            <p class="derived-note">{d.note}</p>
+            {d.diffs && d.diffs.length > 0 && (
+              <ul class="diffs">
+                {d.diffs.map((df: any) => (
+                  <li data-sp={df.sp > 1 ? df.sp : undefined} data-sp-label={spLabel(df.sp)}>{df.text}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <p class="muted small-note">
+    出典: Wikipedia等の公開情報。派生作品の内容についての記述は管理人によるものです。
   </p>
 
   <script>
     document.querySelectorAll<HTMLElement>('.an-set').forEach((b) => {
       b.addEventListener('click', () => {
-        localStorage.setItem('kira-progress', b.dataset.ord!);
-        location.reload();
+        const kira = (window as any).KIRA;
+        if (kira && typeof kira.set === 'function') kira.set(Number(b.dataset.ord));
+        b.textContent = '設定しました';
+        setTimeout(() => { b.textContent = 'ここまで見た'; }, 1600);
       });
     });
   </script>
@@ -71,23 +104,34 @@ import anime from '../../data/media.json';
     .an-season-tag {
       background: var(--noir); color: var(--noir-ink);
       font-weight: 800; font-size: 0.8rem; border-radius: 999px; padding: 4px 12px;
-      min-width: 7.5em; text-align: center;
+      min-width: 8.5em; text-align: center;
     }
     .an-range { font-size: 0.85rem; }
     .an-cont { font-size: 0.95rem; }
     .an-set { margin-left: auto; font-size: 0.8rem; padding: 6px 14px; }
-    .an-airing {
-      background: var(--accent); color: var(--accent-ink);
-      font-size: 0.7rem; font-weight: 800; border-radius: 999px; padding: 3px 10px;
+    .small-note { font-size: 0.78rem; }
+    .an-table-wrap { padding: 4px 8px 8px; overflow-x: auto; margin-bottom: 10px; }
+    .an-block-head {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 10px 10px 6px; border-bottom: 2px solid var(--line);
     }
-    .an-table-wrap { padding: 4px 8px; overflow-x: auto; }
+    .an-block-head span { font-size: 0.8rem; }
     .an-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .an-table th {
-      text-align: left; font-size: 0.75rem; color: var(--ink-2);
-      padding: 8px 10px; border-bottom: 2px solid var(--line);
-    }
     .an-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); }
     .an-table tr:last-child td { border-bottom: none; }
     .an-num { white-space: nowrap; font-weight: 700; color: var(--accent); width: 5em; }
+    .derived-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .derived-card { padding: 16px; }
+    .derived-head { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; margin-bottom: 6px; }
+    .kind-tag {
+      background: var(--accent-soft); color: var(--accent);
+      font-weight: 700; border-radius: 6px; padding: 2px 8px;
+    }
+    .derived-title { display: block; font-size: 1rem; margin-bottom: 6px; }
+    .derived-note { font-size: 0.86rem; color: var(--ink-2); margin: 0; }
+    .diffs { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+    .diffs li {
+      font-size: 0.82rem; background: var(--surface-2); border-radius: 8px; padding: 8px 10px;
+    }
   </style>
 </Base>

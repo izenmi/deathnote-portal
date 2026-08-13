@@ -153,7 +153,15 @@ const navGroups: { label: string; href?: string; items?: { href: string; label: 
 
         const stored = localStorage.getItem(KEY);
         let progress = stored === null ? 0 : Number(stored);
-        window.KIRA = { get progress() { return progress; } };
+        window.KIRA = {
+          get progress() { return progress; },
+          // 他ページから読了位置を設定する(アニメ対応表の「ここまで見た」など)
+          set(ord) {
+            progress = Number(ord);
+            localStorage.setItem(KEY, String(progress));
+            apply();
+          },
+        };
 
         const apply = () => {
           document.querySelectorAll('[data-sp]').forEach((el) => {

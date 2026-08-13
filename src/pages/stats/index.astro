@@ -3,24 +3,27 @@ import Base from '../../layouts/Base.astro';
 import points from '../../data/stats.json';
 import timeline from '../../data/timeline.json';
 
-const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '入学時';
+const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.label ?? '';
 ---
 
-<Base title="クラスポイント推移" description="A〜Dクラスのクラスポイント変動を折れ線グラフで辿る。読了位置より先は自動でマスク。">
-  <h1>📈 クラスポイント推移</h1>
+<Base title="勢力の推移" description="キラと捜査側の力関係の移り変わりを折れ線グラフで。読了位置より先は自動でマスクされます。">
+  <h1>📈 勢力の推移</h1>
   <p class="muted">
-    入学時クラス基準の4系列。数値はファンコミュニティの検証値を基にした概算です。
+    キラと捜査側の力関係が、巻を追ってどう入れ替わったかを4つの指標で表したものです。
     読了位置(右上📖)より先の推移は「???」でマスクされます。
+  </p>
+  <p class="muted caution">
+    ⚠ <strong>作中に示された公式の数値ではありません。</strong>管理人が作中描写から相対評価した 0〜100 の指数です。
   </p>
 
   <div class="card chart-card">
     <div id="legend" class="legend"></div>
-    <svg id="chart" viewBox="0 0 760 420" role="img" aria-label="クラスポイント推移グラフ"></svg>
+    <svg id="chart" viewBox="0 0 760 420" role="img" aria-label="勢力の推移グラフ"></svg>
     <p id="chart-empty" class="muted" hidden>表示できる期間がありません。右上の📖から読了位置を設定してください。</p>
   </div>
 
   <section>
-    <h2 class="section-title">主な変動イベント</h2>
+    <h2 class="section-title">局面を動かした出来事</h2>
     <div data-sp-count>
       <p class="sp-note"></p>
       <ul class="events">
@@ -41,7 +44,7 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
     const empty = document.getElementById('chart-empty');
     const NS = 'http://www.w3.org/2000/svg';
     const W = 760, H = 420, L = 52, R = 16, T = 18, B = 44;
-    const MAXY = 1300;
+    const MAXY = 100;
 
     const el = (tag, attrs, parent) => {
       const n = document.createElementNS(NS, tag);
@@ -68,7 +71,7 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
       const y = (v) => T + (H - T - B) * (1 - v / MAXY);
 
       // グリッドと目盛り
-      for (let v = 0; v <= MAXY; v += 250) {
+      for (let v = 0; v <= MAXY; v += 25) {
         el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: 'var(--line)', 'stroke-width': v === 0 ? 1.6 : 1 });
         el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'var(--ink-2)' }).textContent = String(v);
       }
@@ -123,6 +126,10 @@ const spLabel = (sp: number) => timeline.volumes.find((v) => v.ord === sp)?.labe
     .event-vol {
       flex-shrink: 0; font-size: 0.74rem; font-weight: 700; color: var(--accent);
       background: var(--accent-soft); border-radius: 6px; padding: 2px 8px;
+    }
+    .caution {
+      background: var(--accent-soft); border-radius: 10px; padding: 10px 14px;
+      font-size: 0.84rem;
     }
   </style>
 </Base>
