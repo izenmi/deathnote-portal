@@ -3,21 +3,21 @@ import Base from '../../layouts/Base.astro';
 import taiken from '../../data/taiken.json';
 ---
 
-<Base title="特別試験を体験" description="満場一致特別試験を一人称で体験する選択肢式アドベンチャー。あなたの選択で結末が変わる。">
-  <h1>🎭 特別試験を体験</h1>
+<Base title="事件を体験" description="ノートを拾った日からの数日を、選択肢で辿るアドベンチャー。あなたの選択で結末が変わります。">
+  <h1>🎭 事件を体験</h1>
   <p class="muted">
-    もしあなたがあの教室にいたら、どのボタンを押しますか?
+    もしあなたがあのノートを拾ってしまったら、どう動きますか?
     選択の積み重ねで、あなたの「タイプ」が判定されます。
   </p>
 
   <div data-sp-count>
     <p class="sp-note"></p>
-    <div data-sp="20" data-sp-label="2年生編5巻">
+    <div data-sp="2" data-sp-label="2巻「合流」">
       <div id="tk-start" class="card panel">
         <h2>{taiken.title}</h2>
         <p style="font-size: 0.95rem;">{taiken.intro}</p>
         <p class="muted" style="font-size: 0.8rem;">
-          ⚠ このシナリオは2年生編5巻の特別試験を題材にしています(結末は原作と異なる場合があります)。
+          ⚠ 原作の展開を題材にした創作シナリオです(結末は原作と異なります)。実在の人物名を入力する操作はありません。
         </p>
         <button id="tk-begin" class="primary-btn">試験を開始する</button>
       </div>
@@ -29,8 +29,8 @@ import taiken from '../../data/taiken.json';
       </div>
 
       <div id="tk-end" class="panel" hidden>
-        <div class="card oaa-result">
-          <span class="oaa-app-tag">特別試験 適性判定</span>
+        <div class="card result-panel">
+          <span class="result-tag">特別試験 適性判定</span>
           <div class="verdict">
             <div class="verdict-rank rank" id="tk-grade" data-rank="B">B</div>
             <div>
@@ -86,7 +86,7 @@ import taiken from '../../data/taiken.json';
       $('tk-grade').dataset.rank = e.grade;
       $('tk-title').textContent = e.title;
       $('tk-result').textContent = e.text;
-      const text = `満場一致特別試験を体験した結果…「${e.title}」(評価${e.grade})でした。あなたならどのボタンを押す? #よう実 #高育ポータル`;
+      const text = `「ノートを拾った日」を体験した結果…「${e.title}」(評価${e.grade})でした。あなたなら、どうする? #デスノート #キラ事件ポータル`;
       $('tk-share').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`;
       show('tk-end');
     };
@@ -102,8 +102,8 @@ import taiken from '../../data/taiken.json';
 
   <style is:global>
     .tk-text { font-size: 0.98rem; line-height: 1.9; }
-    .oaa-result { padding: 22px; border-top: 4px solid var(--accent); }
-    .oaa-app-tag {
+    .result-panel { padding: 22px; border-top: 4px solid var(--accent); }
+    .result-tag {
       font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
       color: var(--ink-2); text-transform: uppercase;
     }

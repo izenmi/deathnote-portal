@@ -3,16 +3,17 @@ import Base from '../../layouts/Base.astro';
 import shindan from '../../data/shindan.json';
 ---
 
-<Base title="クラス適性診断" description="12の質問であなたの適性クラスとOAA風ステータスを判定。">
-  <h1>🧭 クラス適性診断</h1>
+<Base title="ノートを拾ったら診断" description="12の質問で、あなたがデスノートを手にしたときどう動くタイプかを判定します。">
+  <h1>🧭 ノートを拾ったら診断</h1>
   <p class="muted">
-    もしあなたが高度育成高等学校に入学したら…? 12の質問で、適性クラスとOAA風ステータスを判定します。
+    もしあなたがあのノートを拾ってしまったら——12の質問で、あなたがどう動くタイプかを判定します。
+    これはフィクションを題材にした遊びのコンテンツです。
   </p>
 
   <div id="sd-start" class="card panel">
-    <h2>入学適性検査のご案内</h2>
-    <p>本検査は約1分で完了します。直感で答えるほど精度が上がります。</p>
-    <button id="sd-begin" class="primary-btn">検査を開始する</button>
+    <h2>診断のご案内</h2>
+    <p>約1分で完了します。直感で答えるほど結果がはっきり出ます。</p>
+    <button id="sd-begin" class="primary-btn">診断を開始する</button>
   </div>
 
   <div id="sd-play" class="card panel" hidden>
@@ -23,9 +24,9 @@ import shindan from '../../data/shindan.json';
   </div>
 
   <div id="sd-result" class="panel" hidden>
-    <div class="card oaa-result">
-      <div class="oaa-result-head">
-        <span class="oaa-app-tag">OAA - 入学適性検査結果</span>
+    <div class="card result-panel">
+      <div class="result-panel-head">
+        <span class="result-tag">OAA - 入学適性検査結果</span>
         <h2 id="sd-title" style="margin: 6px 0 2px;"></h2>
         <p id="sd-class" class="sd-class-label"></p>
       </div>
@@ -42,8 +43,8 @@ import shindan from '../../data/shindan.json';
     const $ = (id) => document.getElementById(id);
     const qs = shindan.questions;
     let idx = 0;
-    let cls = { A: 0, B: 0, C: 0, D: 0 };
-    let traits = { aca: 0, phy: 0, wit: 0, soc: 0 };
+    let cls = { light: 0, l: 0, near: 0, matsuda: 0 };
+    let traits = { logic: 0, justice: 0, ego: 0, empathy: 0 };
 
     const show = (panel) => {
       ['sd-start', 'sd-play', 'sd-result'].forEach((id) => ($(id).hidden = id !== panel));
@@ -84,7 +85,7 @@ import shindan from '../../data/shindan.json';
       $('sd-title').textContent = res.title;
       $('sd-class').textContent = res.label;
       $('sd-desc').textContent = res.desc;
-      const names = { aca: '学力', phy: '身体能力', wit: '機転思考力', soc: '社会貢献性' };
+      const names = { logic: '論理', justice: '正義感', ego: '自我', empathy: '共感' };
       const maxPer = 30; // 12問×最大3の理論値近似
       $('sd-stats').innerHTML = Object.entries(names)
         .map(([k, label]) => {
@@ -97,15 +98,15 @@ import shindan from '../../data/shindan.json';
           </div>`;
         })
         .join('');
-      const text = `高育入学適性検査の結果: ${res.label}「${res.title}」でした! あなたはどのクラス? #よう実 #高育ポータル`;
+      const text = `「ノートを拾ったら診断」の結果: ${res.label}「${res.title}」でした! #デスノート #キラ事件ポータル`;
       $('sd-share').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`;
       show('sd-result');
     };
 
     $('sd-begin').addEventListener('click', () => {
       idx = 0;
-      cls = { A: 0, B: 0, C: 0, D: 0 };
-      traits = { aca: 0, phy: 0, wit: 0, soc: 0 };
+      cls = { light: 0, l: 0, near: 0, matsuda: 0 };
+      traits = { logic: 0, justice: 0, ego: 0, empathy: 0 };
       show('sd-play');
       renderQ();
     });
@@ -118,8 +119,8 @@ import shindan from '../../data/shindan.json';
       overflow: hidden; margin-bottom: 14px;
     }
     #sd-bar-fill { height: 100%; background: var(--accent); transition: width 0.25s ease; display: block; }
-    .oaa-result { padding: 22px; border-top: 4px solid var(--accent); }
-    .oaa-app-tag {
+    .result-panel { padding: 22px; border-top: 4px solid var(--accent); }
+    .result-tag {
       font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
       color: var(--ink-2); text-transform: uppercase;
     }

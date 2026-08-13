@@ -2,20 +2,20 @@
 import Base from '../../layouts/Base.astro';
 ---
 
-<Base title="実力テスト" description="4つのミニゲームであなたのOAAを実測。成績カードを画像で保存・シェアできます。">
-  <h1>💪 実力テスト</h1>
+<Base title="捜査能力テスト" description="4つのミニゲームで捜査適性を実測。成績カードを画像で保存・シェアできます。">
+  <h1>🧠 捜査能力テスト</h1>
   <p class="muted">
     高度育成高等学校の入学試験を体験しましょう。4つのミニゲームであなたの
-    学力・身体能力・機転思考力・社会貢献性を「実測」し、OAA風の成績カードを発行します。
+    推理力・行動力・観察力・胆力を「実測」し、捜査資料風の成績カードを発行します。
   </p>
 
   <div id="jt-start" class="card panel">
     <h2>受験のご案内</h2>
     <ol class="jt-guide">
-      <li>🧮 <strong>学力</strong> — 60秒間の暗算タイムアタック</li>
-      <li>⚡ <strong>身体能力</strong> — 反射神経テスト(5回)</li>
-      <li>🧠 <strong>機転思考力</strong> — 数字の瞬間記憶</li>
-      <li>🤝 <strong>社会貢献性</strong> — 適性アンケート(5問)</li>
+      <li>🧮 <strong>推理力</strong> — 60秒間の暗算タイムアタック</li>
+      <li>⚡ <strong>行動力</strong> — 反射神経テスト(5回)</li>
+      <li>🧠 <strong>観察力</strong> — 数字の瞬間記憶</li>
+      <li>🤝 <strong>胆力</strong> — 適性アンケート(5問)</li>
     </ol>
     <p class="muted" style="font-size: 0.85rem;">所要時間は約3分。各種目はスキップもできます(スコア50扱い)。</p>
     <button id="jt-begin" class="primary-btn">受験を開始する</button>
@@ -23,7 +23,7 @@ import Base from '../../layouts/Base.astro';
 
   <!-- 学力 -->
   <div id="jt-math" class="card panel" hidden>
-    <div class="jt-head"><h2>🧮 学力検査</h2><span id="jt-math-timer" class="jt-timer">60</span></div>
+    <div class="jt-head"><h2>🧮 推理力検査</h2><span id="jt-math-timer" class="jt-timer">60</span></div>
     <p class="muted">制限時間内にできるだけ多く正解してください。</p>
     <p id="jt-math-q" class="jt-question">--</p>
     <input id="jt-math-in" type="number" inputmode="numeric" placeholder="答えを入力してEnter" autocomplete="off" />
@@ -33,7 +33,7 @@ import Base from '../../layouts/Base.astro';
 
   <!-- 反射 -->
   <div id="jt-reflex" class="card panel" hidden>
-    <div class="jt-head"><h2>⚡ 身体能力検査</h2><span id="jt-reflex-count" class="jt-timer">0/5</span></div>
+    <div class="jt-head"><h2>⚡ 行動力検査</h2><span id="jt-reflex-count" class="jt-timer">0/5</span></div>
     <p class="muted">パネルが<strong style="color:#2e8b57">緑</strong>になった瞬間にタップ。赤のうちに押すとやり直しです。</p>
     <button id="jt-reflex-pad" class="jt-pad">待機中…タップで開始</button>
     <p class="jt-sub" id="jt-reflex-log"></p>
@@ -42,7 +42,7 @@ import Base from '../../layouts/Base.astro';
 
   <!-- 記憶 -->
   <div id="jt-memory" class="card panel" hidden>
-    <div class="jt-head"><h2>🧠 機転思考力検査</h2><span id="jt-memory-level" class="jt-timer">3桁</span></div>
+    <div class="jt-head"><h2>🧠 観察力検査</h2><span id="jt-memory-level" class="jt-timer">3桁</span></div>
     <p class="muted">一瞬だけ表示される数字を覚えて入力してください。桁数はどんどん増えます。</p>
     <p id="jt-memory-show" class="jt-question">&nbsp;</p>
     <input id="jt-memory-in" type="number" inputmode="numeric" placeholder="覚えた数字を入力してEnter" autocomplete="off" hidden />
@@ -52,15 +52,15 @@ import Base from '../../layouts/Base.astro';
 
   <!-- アンケート -->
   <div id="jt-social" class="card panel" hidden>
-    <div class="jt-head"><h2>🤝 社会貢献性検査</h2><span id="jt-social-num" class="jt-timer">1/5</span></div>
+    <div class="jt-head"><h2>🤝 胆力検査</h2><span id="jt-social-num" class="jt-timer">1/5</span></div>
     <p id="jt-social-q" class="jt-question-s"></p>
     <div id="jt-social-choices" class="choices"></div>
   </div>
 
   <!-- 結果 -->
   <div id="jt-result" class="panel" hidden>
-    <div class="card oaa-result">
-      <span class="oaa-app-tag">OAA - 入学試験結果通知</span>
+    <div class="card result-panel">
+      <span class="result-tag">捜査適性 - 検査結果通知</span>
       <div class="jt-name-row">
         <label>受験者名(カードに印字・任意): <input id="jt-name" type="text" maxlength="12" placeholder="名無しの受験生" /></label>
       </div>
@@ -106,7 +106,7 @@ import Base from '../../layouts/Base.astro';
       b.addEventListener('click', () => { scores[b.dataset.skip!] = 50; next(); })
     );
 
-    // ---- 学力: 計算タイムアタック ----
+    // ---- 推理力: 計算タイムアタック ----
     function startMath() {
       let t = 60, ok = 0, answer = 0;
       const input = $('jt-math-in') as HTMLInputElement;
@@ -135,7 +135,7 @@ import Base from '../../layouts/Base.astro';
       input.focus();
     }
 
-    // ---- 身体能力: 反射神経 ----
+    // ---- 行動力: 反射神経 ----
     function startReflex() {
       const pad = $('jt-reflex-pad');
       const times: number[] = [];
@@ -181,7 +181,7 @@ import Base from '../../layouts/Base.astro';
       cleanup = () => { clearTimeout(timeout); pad.removeEventListener('click', onClick); };
     }
 
-    // ---- 機転: 数字記憶 ----
+    // ---- 観察力: 数字記憶 ----
     function startMemory() {
       let digits = 3, best = 0, current = '';
       const show = $('jt-memory-show');
@@ -218,13 +218,13 @@ import Base from '../../layouts/Base.astro';
       cleanup = () => { btn.removeEventListener('click', onBtn); input.removeEventListener('keydown', onKey); };
     }
 
-    // ---- 社会貢献性: アンケート ----
+    // ---- 胆力: アンケート ----
     const SOCIAL_QS: [string, [string, number][]][] = [
-      ['困っているクラスメイトを見かけたら?', [['迷わず声をかける', 100], ['様子を見てから声をかける', 70], ['頼まれたら手伝う', 45], ['関わらない', 15]]],
-      ['クラスの行事の役割決めでは?', [['まとめ役に立候補する', 100], ['頼まれた役は引き受ける', 70], ['目立たない役を選ぶ', 45], ['できるだけ逃げる', 15]]],
-      ['意見が対立したとき、あなたは?', [['双方の妥協点を探す', 100], ['まず相手の話を全部聞く', 75], ['自分の意見を通す', 40], ['議論から離脱する', 20]]],
-      ['約束やルールについて?', [['多少損でも必ず守る', 95], ['基本は守る', 70], ['状況次第で柔軟に', 45], ['縛られたくない', 20]]],
-      ['クラスの誰かが成功したら?', [['自分のことのように喜ぶ', 95], ['素直に称賛する', 75], ['少し悔しい', 50], ['興味がない', 20]]],
+      ['不自然な死が続いている。世間はまだ気づいていない。あなたは?', [['自分から調べはじめる', 100], ['情報を集めて様子を見る', 70], ['誰かが動くのを待つ', 45], ['関わらない', 15]]],
+      ['決定的な証拠はない。だが確信はある。', [['確信に賭けて踏み込む', 95], ['裏づけを取ってから動く', 85], ['上の判断を仰ぐ', 50], ['手を引く', 20]]],
+      ['真相に近づくほど、身の危険が増している。', [['それでも続ける', 100], ['対策を打ってから続ける', 75], ['一度退いて機会を待つ', 45], ['降りる', 15]]],
+      ['信頼していた同僚に、疑わしい点が見つかった。', [['本人に直接ぶつける', 85], ['黙って観察を続ける', 90], ['他の人に相談する', 60], ['見なかったことにする', 20]]],
+      ['あと一手で決着がつく。ただし外せばすべて失う。', [['迷わず打つ', 95], ['確率を上げられるだけ上げてから打つ', 90], ['安全策に切り替える', 55], ['決断を先送りにする', 25]]],
     ];
     function startSocial() {
       let i = 0; const vals: number[] = [];
@@ -251,7 +251,7 @@ import Base from '../../layouts/Base.astro';
 
     // ---- 結果カード ----
     const AXIS_LABELS: [string, string][] = [
-      ['math', '学力'], ['reflex', '身体能力'], ['memory', '機転思考力'], ['social', '社会貢献性'],
+      ['math', '推理力'], ['reflex', '行動力'], ['memory', '観察力'], ['social', '胆力'],
     ];
     function drawCard() {
       const canvas = $('jt-canvas') as HTMLCanvasElement;
@@ -268,7 +268,7 @@ import Base from '../../layouts/Base.astro';
       ctx.fillRect(14, 14, 672, 64);
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 26px sans-serif';
-      ctx.fillText('OAA 入学試験 成績通知書', 36, 55);
+      ctx.fillText('捜査適性検査 結果通知書', 36, 55);
       ctx.font = '13px sans-serif';
       ctx.fillText('高度育成高等学校 学内ポータル(非公式)', 440, 55);
       // 名前
@@ -310,16 +310,16 @@ import Base from '../../layouts/Base.astro';
       ($('jt-download') as HTMLAnchorElement).href = canvas.toDataURL('image/png');
     }
     const judge = (t: number) =>
-      t >= 85 ? 'Aクラス入学確実。ホワイトルーム級の逸材です。'
-      : t >= 70 ? 'Bクラス相当。十分に上位を狙える実力です。'
-      : t >= 55 ? 'Cクラス相当。伸びしろに期待しましょう。'
-      : 'Dクラス配属。ここから成り上がるのが主人公です。';
+      t >= 85 ? '捜査本部の中枢を任せられる水準です。'
+      : t >= 70 ? '第一線で通用する捜査適性があります。'
+      : t >= 55 ? '訓練しだいで十分伸びる水準です。'
+      : '今は追う側より、見守る側が向いているかもしれません。';
 
     function showResult() {
       showPanel('jt-result');
       drawCard();
       const total = Math.round(order.reduce((a, k) => a + scores[k], 0) / 4);
-      const text = `高育の実力テストを受験した結果…総合評価${gradeOf(total)}(${total})でした! あなたは何クラス? #よう実 #高育ポータル`;
+      const text = `捜査能力テストの結果…総合評価${gradeOf(total)}(${total})でした! あなたは追う側? 追われる側? #デスノート #キラ事件ポータル`;
       ($('jt-share') as HTMLAnchorElement).href =
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(location.href)}`;
     }
